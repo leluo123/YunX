@@ -861,6 +861,7 @@ private fun platformShortLabel(platform: String): String? = when (platform) {
     "PAN123" -> "123"
     "PAN115" -> "115"
     "GUANGYA" -> AppStrings.get(R.string.rs_short_guangya)
+    "WEIYUN" -> AppStrings.get(R.string.rs_short_weiyun)
     "ILANZOU" -> AppStrings.get(R.string.rs_short_ilanzou)
     "LANZOU" -> AppStrings.get(R.string.rs_short_lanzou)
     "GITHUB" -> "GitHub"

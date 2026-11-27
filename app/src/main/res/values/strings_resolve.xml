@@ -30,6 +30,7 @@
     <string name="rs_platform_123">123云盘</string>
     <string name="rs_platform_115">115网盘</string>
     <string name="rs_platform_guangya">光鸭云盘</string>
+    <string name="rs_platform_weiyun">腾讯微云</string>
     <string name="rs_platform_ilanzou">蓝奏云优享版</string>
     <string name="rs_platform_lanzou">蓝奏云</string>
     <string name="rs_platform_generic">网盘</string>
@@ -39,6 +40,7 @@
     <string name="rs_short_xunlei">迅雷</string>
     <string name="rs_short_baidu">百度</string>
     <string name="rs_short_guangya">光鸭</string>
+    <string name="rs_short_weiyun">微云</string>
     <string name="rs_short_ilanzou">优享</string>
     <string name="rs_short_lanzou">蓝奏</string>
 

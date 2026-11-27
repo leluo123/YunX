@@ -71,6 +71,7 @@ import com.yunx.app.data.repository.C139AccountRepository
 import com.yunx.app.data.repository.C139ResolveRepository
 import com.yunx.app.data.repository.GuangYaAccountRepository
 import com.yunx.app.data.repository.GuangYaResolveRepository
+import com.yunx.app.data.repository.WeiyunResolveRepository
 import com.yunx.app.data.repository.LanzouAccountRepository
 import com.yunx.app.data.repository.ILanzouAccountRepository
 import com.yunx.app.data.repository.ILanzouResolveRepository
@@ -132,6 +133,7 @@ class ResolveViewModel(
     private val pan115ResolveRepository: Pan115ResolveRepository,
     private val guangyaAccountRepository: GuangYaAccountRepository,
     private val guangyaResolveRepository: GuangYaResolveRepository,
+    private val weiyunResolveRepository: WeiyunResolveRepository,
     private val ilanzouAccountRepository: ILanzouAccountRepository,
     private val ilanzouResolveRepository: ILanzouResolveRepository,
     private val lanzouAccountRepository: LanzouAccountRepository,
@@ -918,6 +920,7 @@ class ResolveViewModel(
         SharePlatform.PAN123 -> pan123AccountRepository.getAccount()?.accessToken
         SharePlatform.PAN115 -> pan115AccountRepository.getAccount()?.cookie
         SharePlatform.GUANGYA -> guangyaAccountRepository.ensureAccessToken()
+        SharePlatform.WEIYUN -> null
         SharePlatform.ILANZOU -> ilanzouAccountRepository.getAccount()?.appToken
         SharePlatform.LANZOU -> lanzouAccountRepository.getAccount()?.cookie
         SharePlatform.GITHUB -> null
@@ -991,6 +994,7 @@ class ResolveViewModel(
         SharePlatform.PAN123 -> pan123ResolveRepository
         SharePlatform.PAN115 -> pan115ResolveRepository
         SharePlatform.GUANGYA -> guangyaResolveRepository
+        SharePlatform.WEIYUN -> weiyunResolveRepository
         SharePlatform.ILANZOU -> ilanzouResolveRepository
         SharePlatform.LANZOU -> lanzouResolveRepository
         else -> resolveRepository
@@ -1018,6 +1022,7 @@ class ResolveViewModel(
         SharePlatform.PAN123 -> AppStrings.get(R.string.rs_platform_123)
         SharePlatform.PAN115 -> AppStrings.get(R.string.rs_platform_115)
         SharePlatform.GUANGYA -> AppStrings.get(R.string.rs_platform_guangya)
+        SharePlatform.WEIYUN -> AppStrings.get(R.string.rs_platform_weiyun)
         SharePlatform.ILANZOU -> AppStrings.get(R.string.rs_platform_ilanzou)
         SharePlatform.LANZOU -> AppStrings.get(R.string.rs_platform_lanzou)
         SharePlatform.GITHUB -> "GitHub"
@@ -2188,6 +2193,12 @@ class ResolveViewModel(
                 "User-Agent" to GuangYaConstants.WEB_UA,
                 "Referer" to GuangYaConstants.DOWNLOAD_REFERER
             )
+            // 腾讯微云：直链在 *.weiyun.com CDN，校验 Referer；大文件服务端下发 FTN5K（已放在 guestCookie）
+            SharePlatform.WEIYUN -> buildMap {
+                put("User-Agent", WeiyunConstants.USER_AGENT)
+                put("Referer", "${WeiyunConstants.BASE_URL}/")
+                if (guestCookie.isNotBlank()) put("Cookie", guestCookie)
+            }
             // 蓝奏优享直链为 CDN 地址，下载带 UA + Referer + Origin，不带 Cookie（文档 §4.1）
             SharePlatform.ILANZOU -> mapOf(
                 "User-Agent" to ILanzouConstants.WEB_UA,
@@ -2385,6 +2396,7 @@ class ResolveViewModel(
         private val pan115ResolveRepository: Pan115ResolveRepository,
         private val guangyaAccountRepository: GuangYaAccountRepository,
         private val guangyaResolveRepository: GuangYaResolveRepository,
+        private val weiyunResolveRepository: WeiyunResolveRepository,
         private val ilanzouAccountRepository: ILanzouAccountRepository,
         private val ilanzouResolveRepository: ILanzouResolveRepository,
         private val lanzouAccountRepository: LanzouAccountRepository,
@@ -2411,6 +2423,7 @@ class ResolveViewModel(
                 pan123AccountRepository, pan123ResolveRepository,
                 pan115AccountRepository, pan115ResolveRepository,
                 guangyaAccountRepository, guangyaResolveRepository,
+                weiyunResolveRepository,
                 ilanzouAccountRepository, ilanzouResolveRepository,
                 lanzouAccountRepository, lanzouResolveRepository,
                 downloadManager,

@@ -266,6 +266,7 @@
     <string name="platform_pan123">123 云盘</string>
     <string name="platform_pan115">115 网盘</string>
     <string name="platform_guangya">光鸭云盘</string>
+    <string name="platform_weiyun">腾讯微云</string>
     <string name="platform_ilanzou">蓝奏云优享版</string>
     <string name="platform_lanzou">蓝奏云</string>
     <string name="platform_github">GitHub</string>

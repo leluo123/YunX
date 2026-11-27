@@ -126,13 +126,15 @@ jobs:
           echo "当前 master HEAD: $HEAD_SHA"
 
           # 最近一次本 workflow 成功 run 的 headSha（gh CLI 已预安装并带 GITHUB_TOKEN）
+          # 按「文件名」而不是「工作流名称」查历史：改了 name 之后按名字查会一个都找不到，
+          # gh 会以非零状态退出，配合 set -e 直接把这一步干掉。找不到时按「无记录」处理。
           LAST_SUCCESS=$(gh run list \
-            --workflow "${{ github.workflow }}" \
+            --workflow build-apk.yml \
             --branch master \
             --status success \
             --limit 1 \
             --json headSha \
-            --jq '.[0].headSha // ""')
+            --jq '.[0].headSha // ""' 2>/dev/null || echo "")
           echo "上次成功构建 SHA: ${LAST_SUCCESS:-（无）}"
 
           if [ -n "$LAST_SUCCESS" ] && [ "$LAST_SUCCESS" = "$HEAD_SHA" ]; then

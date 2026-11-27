@@ -2,186 +2,103 @@
 
 <img src="app/src/main/res/drawable/icon.png" width="120" alt="云析 YunX" />
 
-# 云析 · YunX
+# 云析 YunX · Android（含腾讯微云）
 
-**粘贴分享链接，直接高速下载 —— 一个开源的 Android 网盘 / 视频解析下载应用**
+**在 YunX 安卓版基础上增加「腾讯微云分享解析」的构建**
 
-识别夸克 / UC / 迅雷 / 百度 / 139 / 123 / 115 / 光鸭 / 蓝奏云 / 蓝奏云优享版 的分享链接并自动匹配提取码；也能解析抖音 / 小红书 / 快手 / 微博 / AcFun / 哔哩哔哩 / Pixiv 的视频与图集。Range 分片并发 + 断点续传，图片 / 视频 / 音频可在线预览。
-
-[![Release](https://img.shields.io/github/v/release/CYQawa/YunX?style=flat-square\&label=release\&color=4C8BF5)](https://github.com/CYQawa/YunX/releases/latest)
-[![Stars](https://img.shields.io/github/stars/CYQawa/YunX?style=flat-square\&logo=github\&color=4C8BF5)](https://github.com/CYQawa/YunX/stargazers)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=flat-square)](./LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square\&logo=android\&logoColor=white)](#构建)
-[![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square\&logo=kotlin\&logoColor=white)](https://kotlinlang.org/)
-[![Compose](https://img.shields.io/badge/Jetpack%20Compose-MD3Expressive-4285F4?style=flat-square\&logo=jetpackcompose\&logoColor=white)](https://developer.android.com/jetpack/compose)
-
-[下载最新版](https://github.com/CYQawa/YunX/releases/latest) · [功能](#功能) · [使用](#使用) · [构建](#构建) · [常见问题](#常见问题)
-
-[![QQ交流群](https://img.shields.io/badge/QQ%E7%BE%A4-635207650-12B7F5?style=flat-square\&logo=qq\&logoColor=white)](http://qm.qq.com/cgi-bin/qm/qr?...\&group_code=635207650)
+[⬇ 下载最新版](../../releases) · [原项目](https://github.com/CYQawa/YunX) · [PC 端](https://github.com/tidain/YunX-Desktop) · [上游 README 原文](README.upstream.md)
 
 </div>
 
-***
+---
 
-> **云析永远免费开源。** 如果你是在任何地方"花钱买到"的，说明你被骗了，请立即退款。
-> 任何收费版本均为二次打包的诈骗版本，与本项目无关。
+## 致谢与立场
 
-> **云析使用AGPL-3.0开源协议** 如果你使用了云析的代码，未经授权请遵守协议，同样以AGPL-3.0开放源代码
+这个项目的**代码、设计和绝大部分功能都不是我做的**。
 
-> 本仓库为 Android 端 App；官方 PC 端见 [YunX-Desktop](https://github.com/tidain/YunX-Desktop)
+- 感谢 **[CYQawa](https://github.com/CYQawa)** 写出安卓端与整套网盘 / 视频解析能力
+- 感谢 **[tidain](https://github.com/tidain)** 写出桌面端
 
-## 截图
+两者均以 **AGPL-3.0** 开源。本仓库是它们的下游：**只新增了「腾讯微云」这一家网盘的支持**，其余功能、代码、UI 全部来自原作者。
 
-|           <br />          |            <br />           |            <br />            |
-| :-----------------------: | :-------------------------: | :--------------------------: |
-|  ![解析输入](images/Link.jpg) | ![文件列表](images/Parsing.jpg) | ![下载管理](images/Download.jpg) |
-|            解析直链           |             分享解析            |             下载管理             |
-| ![网盘登录](images/Login.jpg) |  ![设置](images/Setting.jpg)  |    ![关于](images/about.jpg)   |
-|            网盘登录           |              设置             |              关于              |
+> **云析永远免费开源。** 如果你是在任何地方「花钱买到」的，说明你被骗了，请退款。
 
-## 功能
+---
 
-- **网盘分享链接解析** —— 识别夸克 / UC / 迅雷 / 百度 / 139 / 123 / 115 / 光鸭 / 蓝奏云 / 蓝奏云优享版 的分享链接，自动匹配提取码
+## 本版新增：腾讯微云
 
-- **视频链接解析** —— 粘贴抖音 / 快手 / 微博 / AcFun 的分享链接免登录直出直链；小红书需登录后解析；哔哩哔哩登录后画质更高，Pixiv 未登录只能拿到部分公开作品、在「账号」页粘贴浏览器 Cookie 后可解析全部作品（含 R18 与受限作品），哔哩哔哩的音视频分轨由应用内部合轨（不依赖 ffmpeg）
+上游支持夸克 / UC / 迅雷 / 百度 / 139 / 123 / 115 / 光鸭 / 蓝奏云 / 蓝奏云优享版，**不含微云**。本版补上，且**免登录**。
 
-- **高速下载** —— Range 分片并发 + 断点续传，任务保存请求头与固定分片规划，并发上限 32
+| 能力 | 说明 |
+|---|---|
+| 分享链接解析 | `https://share.weiyun.com/{id}` |
+| 目录浏览 | 分享的是文件夹时可以点进去 |
+| 下载 | Range 分片并发 + 断点续传（微云 CDN 支持 `Accept-Ranges`） |
+| 提取码 | 链接带 `?pwd=` 自动识别 |
+| 登录 | **不需要** |
 
-- **在线预览与播放** —— 图片 / 视频 / 音频直接在线播放（逐请求带上 Referer / Cookie，直链不再 403）；网盘里的常见文本文件也能在线打开
+### 怎么用
 
-- **图集两列网格** —— 图文笔记直接把图铺成两列，点开可翻页 / 双指放大 / 单张下载，长按进入多选批量下载
+1. 「解析」页粘贴微云分享链接 → 开始解析
+2. 列出文件后点文件 → 取直链下载
 
-- **下载自动归组** —— 整个文件夹、或一次批量下载的图片，在下载页收纳成一个可折叠分组
+### 也给了浏览器脚本和命令行
 
-- **临时转存清理** —— 百度 / 迅雷 / 光鸭取链后清理；夸克保留到下载完成或删除任务后清理
+- [`tools/weiyun-via.user.js`](tools/weiyun-via.user.js) —— Via / 油猴脚本，打开分享页右下角出面板（不想装 App 用这个）
+- [`tools/weiyun_share.py`](tools/weiyun_share.py) —— 纯标准库 CLI
 
-- **多平台登录** —— 夸克 / UC / 百度 / 139 / 115 使用 WebView Cookie；迅雷 / 光鸭 使用账号密码 / 短信验证码；123 使用账号密码换取 JWT；蓝奏云 / 蓝奏云优享版 使用账号密码
+装法见 [`tools/README.md`](tools/README.md)。
 
-- **认证备份** —— 使用用户口令派生密钥，以 AES-GCM 加密 Cookie / JWT 备份文件
+---
 
-- **凭证存储** —— 账号 Cookie / JWT、GitHub Token 和下载请求头保存在应用私有数据中；导出的认证备份文件使用用户口令派生的密钥进行 AES-GCM 加密
+## 本仓库相对上游改了什么
 
-- **剪贴板识别** —— 复制分享链接后回到应用，提示一键粘贴解析
+**新增 3 个 Kotlin 文件**：`WeiyunConstants.kt` / `WeiyunApi.kt` / `WeiyunResolveRepository.kt`
+**新增资源**：`logo_weiyun.png`、`platform_weiyun` / `rs_platform_weiyun` / `rs_short_weiyun`
 
-## 支持平台
+**改动 8 处**：
 
-**网盘**
+| 文件 | 改动 |
+|---|---|
+| `data/network/ShareLinkParser.kt` | 枚举加 `WEIYUN` + 链接正则 + parse 分支 |
+| `data/download/DownloadPlatform.kt` | 加 `WEIYUN` 常量 |
+| `ui/items/PlatformLogos.kt` | 穷尽 `when` 补图标分支（不加就编译失败） |
+| `ui/screens/ResolveScreen.kt` | 平台短名 |
+| `ui/viewmodel/ResolveViewModel.kt` | 注入 / 凭证 `null` / `currentRepo()` 分发 / 平台名 / 免登录白名单 / 默认目录 / 下载请求头 |
+| `ui/MainScreen.kt` | 装配 |
 
-- 夸克网盘
+**不碰**：Room 表、账号、登录页、云盘页 —— 微云免登录，`AppDatabase` 仍是 version 24，无迁移。
 
-- UC 网盘
+**CI**（`.github/workflows/build-apk.yml`）：
 
-- 迅雷网盘
+| 改动 | 原因 |
+|---|---|
+| 签名步骤改成「有 Secrets 用正式证书，没有就现场自签名」 | 上游要求 4 个 Secrets，缺一个直接 `exit 1`；本 fork 没有 ⇒ 以前必然失败 |
+| 新增「校验微云补丁仍在」 | 防止补丁被同步/重构吃掉却仍出包 |
+| 新增「Publish APK to Release」 | 上游只传 Actions Artifacts；本 fork 额外发 Release，方便直接下载 |
 
-- 百度网盘
+---
 
-- 123 云盘
+## 下载与安装
 
-- 139 网盘（和彩云）
+去 [**Releases**](../../releases) 下载 `YunX-<版本>-wx.apk`。
 
-- 115 网盘
+- 本仓库用的是**临时自签名证书**，所以**每次构建签名不同** ⇒ 覆盖安装会失败，先卸载旧版再装。
+- 想稳定升级：在仓库 Settings → Secrets 里配好 `KEYSTORE_BASE64` / `KEYSTORE_PASSWORD` / `KEY_ALIAS` / `KEY_PASSWORD`，workflow 会自动改用你的正式证书。
+- 与上游 `CN=Modder Hub` 签名的包**不能互相覆盖安装**。
 
-- 光鸭云盘
+其余功能（视频解析、多账号、云端浏览等）见[上游文档](README.upstream.md)。
 
-- 蓝奏云
+---
 
-- 蓝奏云优享版
+## 微云支持的边界
 
-**视频 / 图集**
+1. **不支持转存到微云个人盘**（需要登录账号），只做分享直链下载。
+2. **空壳分享**会显示空列表。
+3. **需要提取码**的分享手动填。
 
-- 抖音
+---
 
-- 小红书
+## 授权
 
-- 快手
-
-- 微博
-
-- AcFun
-
-- 哔哩哔哩（需登录才能解析高清）
-
-- Pixiv（未登录只能拿到部分公开作品；不支持网页登录，可在「账号」页粘贴浏览器 Cookie 以解析全部作品）
-
-> \[!WARNING]
-> **不建议使用百度网盘，可能导致账号被风控！**
-
-> \[!NOTE]
-> 其他网盘与视频平台暂未支持，如有需要请开一个 [issue](https://github.com/CYQawa/YunX/issues)。
-
-## 使用
-
-1. 在「账号」页登录需要使用的网盘账号（需要登录的视频平台也在这里登录）
-2. 在「解析」页粘贴链接（可带提取码）：分享链接解析网盘，视频链接会自动识别平台
-3. 网盘链接浏览分享内容、点击文件获取下载直链；视频链接在结果页直接预览或下载，图片笔记长按可多选
-4. 在「下载」页查看进度，支持暂停 / 继续 / 删除 / 打开
-
-## 技术栈
-
-| 分类    | 选型                                           |
-| ----- | -------------------------------------------- |
-| 语言    | Kotlin                                       |
-| UI    | Jetpack Compose + Material 3                 |
-| 持久化   | Room（KSP 注解处理）+ SharedPreferences            |
-| 网络    | OkHttp 4.12.0（请求 + 分片下载）                     |
-| 预览播放  | Media3 ExoPlayer / Coil 3                    |
-| 音视频合轨 | MediaExtractor + MediaMuxer（系统原生，逐样本重封装不重编码） |
-| 构建    | Gradle + KSP                                 |
-
-## 构建
-
-要求：minSdk 24，targetSdk 34。
-
-```bash
-git clone https://github.com/CYQawa/YunX.git
-```
-
-用 Android Studio 打开项目直接构建即可。项目在 AndroidIDE 上开发调试，理论上也兼容其它 Android 构建环境。
-
-## 友情推荐
-
-> [文析助手](https://github.com/z7786/wenxi)(提供了部分接口)
-
-## 常见问题
-
-<details>
-<summary><b>百度网盘下载/转存不了？</b></summary>
-
-你的账号被风控了，见[issue #9](https://github.com/CYQawa/YunX/issues/9)
-
-</details>
-
-<details>
-<summary><b>有PC端吗？</b></summary>
-
-有。官方 PC 端由协作者 雑魚（[tidain](https://github.com/tidain)）开发维护：[YunX-Desktop](https://github.com/tidain/YunX-Desktop)
-
-由于作者没有电脑、无法开发 PC 端，**PC 端的开发与维护由 雑魚 独立负责，作者不参与**；PC 端相关的功能与问题请到对应仓库反馈。
-
-</details>
-
-## 反倒卖
-
-> 云析完全免费开源。如果你下载到要钱的版本，那么你就是被骗了，请立马去退款。
-
-- 倒卖狗 🐶：`qq1360735243`
-
-## 免责声明
-
-本项目仅供个人学习与技术交流，请勿用于商业用途。下载内容版权归原作者所有，请在下载后 24 小时内删除。使用本项目产生的任何后果由使用者自行承担。
-
-## 开源协议
-
-本项目基于 [GNU AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html) 协议开源，详见根目录 [LICENSE](./LICENSE)。
-
-## 贡献者
-
-<sub><sup>Contributors</sup></sub>
-
-<a href="https://github.com/CYQawa/YunX/graphs/contributors">
-  <img alt="contributors" src="https://contrib.rocks/image?repo=CYQawa/YunX" />
-</a>
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/chart?repos=CYQawa/YunX\&type=date\&legend=top-left\&sealed_token=hccCg_4ek01_Sz38X79eMbjM11mNpOZti6_hLoztWW4Zdtx-8FScydd7YTdiCBUWvgpsuGDO70RrUKP-bOfbI3Gw8BnME1zIl5EHA9JWsv--_DDwWPjvKbZiAGNDslG3ZTDZ-Ssiapu7j08W4fPT6emGWaIIuawHoIw3Nic_xQu7hUSVO6_YeJRGRoEy)](https://www.star-history.com/?repos=YunX%2FYunX%2CCYQawa%2FYunX\&type=date\&legend=top-left)
+[AGPL-3.0](./LICENSE)。代码版权归 CYQawa / tidain；本仓库的改动同样以 AGPL-3.0 开放。

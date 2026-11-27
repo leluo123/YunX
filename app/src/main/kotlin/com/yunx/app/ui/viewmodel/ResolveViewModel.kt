@@ -1932,6 +1932,7 @@ class ResolveViewModel(
         currentPlatform == SharePlatform.QUARK ||
             currentPlatform == SharePlatform.UC ||
             currentPlatform == SharePlatform.GUANGYA ||
+            currentPlatform == SharePlatform.WEIYUN ||
             currentPlatform == SharePlatform.ILANZOU ||
             currentPlatform == SharePlatform.LANZOU
 

@@ -1,10 +1,14 @@
-# Nightly 测试包构建：每天北京时间 0 点（UTC 16:00）定时跑一次，另支持手动触发。
-# 按作者要求（PR #113）：不打 tag、不发 GitHub Release，产物仅上传为 Actions Artifacts，
-# 供每日最新 master 的尝鲜测试，不污染正式版本号与更新检测。
-# 签名：Release 包用仓库 Secrets 里的正式证书签名（KEYSTORE_BASE64 / KEYSTORE_PASSWORD /
-# KEY_ALIAS / KEY_PASSWORD），与正式版同签名 ⇒ 测试包可直接覆盖安装升级；
-# 本地构建没有这些变量，app/build.gradle.kts 会把 release 变体置为未签名（app-release-unsigned.apk）。
-name: Nightly Build APK
+# 同步上游 + 构建 APK（含腾讯微云补丁）
+#
+# 本仓库 = 上游 CYQawa/YunX + 腾讯微云补丁（12 个源码/资源文件 + tools/）。
+#   1) sync   : 拉上游 master 正常合并进 master；真冲突时以上游为基线、回放我方补丁文件后 push
+#   2) guard  : 构建前断言微云补丁仍在（补丁被吃掉就失败，不出残缺包）
+#   3) build  : assembleRelease（有签名 Secrets 用正式证书，没有就现场自签名）
+#   4) publish: 上传 Actions Artifacts + 发到 Releases（tag apk-v<版本>-wx）
+#
+# 与上游 build-apk.yml 的差异：上游只做 nightly 测试包、不发 Release、要求 4 个签名 Secrets；
+# 本 fork 增加了上游同步、补丁守卫、自签名兜底与 Release 发布。
+name: 同步上游并构建 APK（含微云）
 
 on:
   # UTC 16:00 = 北京时间 00:00
@@ -25,8 +29,59 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # 需要 git 历史与 gh CLI 才能比对最近成功构建的 SHA、读取 default branch HEAD
+          # 需要完整历史：同步上游要 merge，跳过构建的判断要读 origin/master
           fetch-depth: 0
+          # push 回 master 需要凭据（permissions.contents: write）
+          persist-credentials: true
+
+      # 自动跟随上游：拉 CYQawa/YunX 的 master 合并进来，再 push 回本仓库。
+      # 上游改到别处 → 正常合并；真冲突 → 以上游为基线 + 回放我方补丁文件。
+      - name: 同步上游 master
+        id: sync
+        run: |
+          set -eo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BEFORE="$(git rev-parse HEAD)"
+
+          git remote add upstream https://github.com/CYQawa/YunX.git 2>/dev/null || true
+          git fetch --no-tags upstream master
+
+          if git merge-base --is-ancestor FETCH_HEAD HEAD; then
+            echo "upstream: no new commits"
+            echo "synced=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "upstream new commit: $(git log -1 --format='%h %s' FETCH_HEAD)"
+            if ! git merge --no-edit FETCH_HEAD; then
+              echo "::warning::merge conflict with upstream; re-applying our patch files on top of upstream"
+              git merge --abort || true
+              git reset --hard FETCH_HEAD
+              # reset --hard 会删掉上游没有的文件，补丁清单必须完整（含 tools/ 与新增的 Weiyun*.kt）
+              git checkout "$BEFORE" -- README.md README.upstream.md .github/workflows/build-apk.yml tools \
+                app/src/main/kotlin/com/yunx/app/data/network/WeiyunApi.kt \
+                app/src/main/kotlin/com/yunx/app/data/network/WeiyunConstants.kt \
+                app/src/main/kotlin/com/yunx/app/data/repository/WeiyunResolveRepository.kt \
+                app/src/main/kotlin/com/yunx/app/data/network/ShareLinkParser.kt \
+                app/src/main/kotlin/com/yunx/app/data/download/DownloadPlatform.kt \
+                app/src/main/kotlin/com/yunx/app/ui/items/PlatformLogos.kt \
+                app/src/main/kotlin/com/yunx/app/ui/screens/ResolveScreen.kt \
+                app/src/main/kotlin/com/yunx/app/ui/viewmodel/ResolveViewModel.kt \
+                app/src/main/kotlin/com/yunx/app/ui/MainScreen.kt \
+                app/src/main/res/values/strings.xml \
+                app/src/main/res/values/strings_resolve.xml \
+                app/src/main/res/drawable/logo_weiyun.png
+              git add -A
+              git commit -m "chore: sync upstream and re-apply our patch files" || true
+            fi
+            # 上游 README 原文备份（AGPL 要求保留原作者文档）
+            git show FETCH_HEAD:README.md > README.upstream.md || true
+            git add -A
+            git commit -m "docs: refresh README.upstream.md from upstream" || true
+            git push origin HEAD:master
+            echo "synced=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "head=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       # 上游重构可能让补丁"编译得过但功能没了"，构建前先断言微云注册点仍在
       - name: 校验微云补丁仍在

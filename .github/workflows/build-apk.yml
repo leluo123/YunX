@@ -232,10 +232,13 @@ jobs:
           VER=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts | head -1)
           TAG="apk-v${VER}-wx"
           cp app/build/outputs/apk/release/app-release.apk "YunX-${VER}-wx.apk"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "YunX-${VER}-wx.apk" --clobber
+          # 本仓库是 fork：gh 会自动识别到上游仓库，必须显式 --repo 指回自己，
+          # 否则报 "tag exists locally but has not been pushed to <上游>" 并以非零退出。
+          REPO="${GITHUB_REPOSITORY}"
+          if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" "YunX-${VER}-wx.apk" --clobber --repo "$REPO"
           else
-            gh release create "$TAG" "YunX-${VER}-wx.apk" \
+            gh release create "$TAG" "YunX-${VER}-wx.apk" --repo "$REPO" \
               --title "云析 YunX ${VER} · Android 版（含腾讯微云）" \
-              --notes "本包由 leluo123/YunX 自动构建，在上游 ${VER} 基础上增加腾讯微云分享解析（免登录，支持目录浏览与续传下载）。代码版权归原作者 CYQawa，AGPL-3.0。若覆盖安装失败请先卸载旧版（自签名证书随构建变化）。"
+              --notes "本包由 ${REPO} 自动构建，在上游 ${VER} 基础上增加腾讯微云分享解析（免登录，支持目录浏览与续传下载）。代码版权归原作者 CYQawa，AGPL-3.0。若覆盖安装失败请先卸载旧版（自签名证书随构建变化）。"
           fi
